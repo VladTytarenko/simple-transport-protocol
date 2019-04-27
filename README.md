@@ -14,7 +14,6 @@ Data loss or corruption error in the link layer is unlikely but can occur.
 ## Requirements
 - JRE 8 or JDK 8
 - Maven 3
-- RxJava2 v2.2.7
 - JUnit v4.12
 - log4j v1.2.17
 

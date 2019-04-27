@@ -1,10 +1,10 @@
 package com.tytarenko.protcol;
 
 import com.tytarenko.exceptios.EmptyServerNameException;
-import io.reactivex.Observer;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.subjects.PublishSubject;
 import org.apache.log4j.Logger;
+
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class Socket implements ILinkLayer, AutoCloseable {
 
@@ -13,43 +13,35 @@ public class Socket implements ILinkLayer, AutoCloseable {
     private final static int CHUNK_SIZE = 20;
 
     private String serverName;
-    private PublishSubject<byte[]> source;
+    private Queue<byte[]> source;
 
     public Socket() {
-        this.source = PublishSubject.create();
+        this.source = new ConcurrentLinkedQueue<>();
     }
 
     public Socket(String serverName) {
         this.serverName = serverName;
-        this.source = PublishSubject.create();
+        this.source = new ConcurrentLinkedQueue<>();
     }
 
     @Override
     public boolean send(byte[] data) {
-        if (data.length > CHUNK_SIZE) {
+        if (data == null || data.length > CHUNK_SIZE) {
             return false;
         }
-        source.onNext(data);
-        return true;
+        return source.offer(data);
     }
 
     @Override
     public void subscribeReceiveListener(IDataReceiveListener listener) {
-        source.subscribe(new Observer<byte[]>() {
-            @Override
-            public void onSubscribe(Disposable disposable) {}
-
-            @Override
-            public void onNext(byte[] bytes) {
-                listener.onData(bytes);
+        new Thread(() -> {
+            while (true) {
+                byte[] payload = source.poll();
+                if (payload != null) {
+                    listener.onData(payload);
+                }
             }
-
-            @Override
-            public void onError(Throwable throwable) {}
-
-            @Override
-            public void onComplete() {}
-        });
+        }).start();
     }
 
     public void connect() throws EmptyServerNameException {

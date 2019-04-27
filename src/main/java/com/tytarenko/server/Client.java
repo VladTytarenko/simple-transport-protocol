@@ -23,7 +23,6 @@ public class Client implements Runnable {
         try(Socket socket = new Socket("test-server")) {
             // create connection with "server"
             socket.connect();
-            Thread.sleep(1000);
 
             // send data to server
             if (socket.send(data.getBytes())) {
@@ -31,7 +30,7 @@ public class Client implements Runnable {
             } else {
                 log.error(clientName + ": the chunk have is more than 20 bytes");
             }
-        } catch (InterruptedException | EmptyServerNameException e) {
+        } catch (EmptyServerNameException e) {
             e.printStackTrace();
         }
     }

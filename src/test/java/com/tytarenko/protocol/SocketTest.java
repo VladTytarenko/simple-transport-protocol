@@ -25,4 +25,10 @@ public class SocketTest {
         Socket socket = new Socket();
         Assert.assertFalse(socket.send("qwertyuiopasdfghjklzxcvbnm".getBytes()));
     }
+
+    @Test
+    public void Send_Null_FailToSend() {
+        Socket socket = new Socket();
+        Assert.assertFalse(socket.send(null));
+    }
 }

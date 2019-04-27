@@ -10,8 +10,9 @@ public class Main {
         // Test server with two clients
         new Thread(new Server()).start();
 
+        Thread.sleep(1000); // wait for server start
+
         new Thread(new Client("Client1", "Test-payload 1")).start();
-        Thread.sleep(1000);
         new Thread(new Client("Client2", "Test-payload 2")).start();
     }
 }
